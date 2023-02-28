@@ -26,9 +26,9 @@ docker run --rm \
 4. Добавить алиасы для команд:
 ```
 alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'
-alias nollo-restart='sail down && sail up -d'
-alias nollo-docker-remove-all='sail down --rmi all -v'
-alias nollo-migrate-fresh='sail php artisan migrate:fresh'
+alias app-restart='sail down && sail up -d'
+alias app-docker-remove-all='sail down --rmi all -v'
+alias app-migrate-fresh='sail php artisan migrate:fresh'
 ```
 
 Рабочий процесс:

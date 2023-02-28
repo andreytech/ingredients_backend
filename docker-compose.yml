@@ -25,7 +25,8 @@ services:
             - mysql
             - redis
     mysql:
-        image: 'mysql/mysql-server:8.0'
+        container_name: 'ingredients-mariadb'
+        image: 'mariadb:10'
         ports:
             - '${FORWARD_DB_PORT:-3306}:3306'
         environment:
@@ -49,6 +50,7 @@ services:
             retries: 3
             timeout: 5s
     redis:
+        container_name: 'ingredients-redis'
         image: 'redis:alpine'
         ports:
             - '${FORWARD_REDIS_PORT:-6379}:6379'
