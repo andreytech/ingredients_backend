@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             NovaUserSeeder::class,
+            IngredientSeeder::class,
         ]);
 
         // \App\Models\User::factory(10)->create();
