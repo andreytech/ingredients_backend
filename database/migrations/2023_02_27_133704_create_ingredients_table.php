@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('ingredients', function (Blueprint $table) {
             $table->id();
-            $table->tinyText('names');
+            $table->tinyText('name')->unique();
             $table->timestamps();
         });
     }

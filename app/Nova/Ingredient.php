@@ -42,7 +42,7 @@ class Ingredient extends Resource
     {
         return [
             ID::make()->sortable(),
-            Text::make('Names')->sortable(),
+            Text::make('Name')->sortable(),
         ];
     }
 

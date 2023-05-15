@@ -91,6 +91,6 @@ class IngredientSeeder extends Seeder
             'dicaprylyl ether',
         ];
         
-        Ingredient::insert(array_map(fn($ingredient) => ['names' => $ingredient], $ingredients));
+        Ingredient::insert(array_map(fn($ingredient) => ['name' => $ingredient], $ingredients));
     }
 }
