@@ -13,7 +13,12 @@ return new class extends Migration
     {
         Schema::create('ingredients', function (Blueprint $table) {
             $table->id();
-            $table->tinyText('name')->unique();
+            $table->text('name')->unique();
+            $table->integer('cosing_ref_no');
+            $table->tinyText('cas_no');
+            $table->tinyText('ec_no');
+            $table->text('description');
+            $table->tinyText('function');
             $table->timestamps();
         });
     }

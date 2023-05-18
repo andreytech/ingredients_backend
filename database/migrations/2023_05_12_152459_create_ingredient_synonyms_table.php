@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('ingredient_synonyms', function (Blueprint $table) {
             $table->id();
-            $table->tinyText('name')->unique();
+            $table->text('name')->unique();
             $table->foreignId('ingredient_id')->index();
             $table->tinyInteger('language');
             $table->timestamps();

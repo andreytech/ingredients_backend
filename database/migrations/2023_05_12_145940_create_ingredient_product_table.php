@@ -17,6 +17,8 @@ return new class extends Migration
 
             $table->foreignId('product_id')->index();
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+
+            $table->unique(['ingredient_id', 'product_id']);
         });
     }
 

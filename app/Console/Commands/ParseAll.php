@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Ingredient;
+use App\Models\IngredientSynonyms;
 use App\Models\Product;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -23,11 +24,21 @@ class ParseAll extends Command
      */
     protected $description = 'Command description';
 
+    private $ingredients = null;
+
     /**
      * Execute the console command.
      */
     public function handle()
     {
+        // DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        // Product::truncate();
+        // DB::table('ingredient_product')->truncate();
+        // DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+        $this->ingredients = IngredientSynonyms::select('ingredient_id', 'name')->orderByRaw('CHAR_LENGTH(name) DESC')->pluck('name', 'ingredient_id')->toArray();
+        // var_dump($this->ingredients);exit;
+
         $filesToCategory = [
             'ozon' => [
                 1 => 'aksessuari.csv',
@@ -136,9 +147,10 @@ class ParseAll extends Command
             $product->properties = $ingredients;
             $product->save();
 
+            $this->handleIngredients($ingredients, $product);
+
             if($description && substr_count($description, ',') > 20) {
-                $this->handleIngredients($description, $product);
-                $this->handleIngredients($ingredients, $product);
+                // $this->handleIngredients($description, $product);
             }
         }
         fclose($handle);
@@ -149,6 +161,10 @@ class ParseAll extends Command
 
     public function handleIngredients($str, $product)
     {
+        if(!$str) {
+            return;
+        }
+        $str = strip_tags(strtolower($str));
         $str = str_replace('&nbsp;', ' ', $str);
         $str = str_replace('*', '', $str);
         $str = preg_replace('/[а-яё]/iu', '', $str);
@@ -161,31 +177,39 @@ class ParseAll extends Command
         }
 
         foreach($ingredients as $ingredient) {
-            $ingredient = trim(strtolower(strip_tags($ingredient)));
+            $ingredient = trim($ingredient);
 
             // if(preg_match("/[а-яё]/iu", $ingredient)) {
             //     continue;
             // }
+            if(strlen($ingredient) < 3) {
+                continue;
+            }
             if(!preg_match("/[a-z]/iu", $ingredient)) {
                 continue;
             }
-
-            if(strlen(preg_replace('/[^a-z]/iu', '', $ingredient)) < 4) {
-                continue;
-            }
-            if(substr_count($ingredient, ' ') > 3) {
-                continue;
-            }
-            $words = explode(' ', $ingredient);
-            if(!array_reduce($words, function ($res, $word) { return $res && (strlen($word) >= 4); }, true)) {
+            
+            $ingredient_id = array_search($ingredient, $this->ingredients);
+            if($ingredient_id === false) {
                 continue;
             }
 
-            $ingredientObj = Ingredient::firstOrCreate([
-                'name' => $ingredient,
-            ]);
+            // if(strlen(preg_replace('/[^a-z]/iu', '', $ingredient)) < 4) {
+            //     continue;
+            // }
+            // if(substr_count($ingredient, ' ') > 3) {
+            //     continue;
+            // }
+            // $words = explode(' ', $ingredient);
+            // if(!array_reduce($words, function ($res, $word) { return $res && (strlen($word) >= 4); }, true)) {
+            //     continue;
+            // }
+
+            // $ingredientObj = Ingredient::firstOrCreate([
+            //     'name' => $ingredient,
+            // ]);
     
-            $product->ingredients()->attach($ingredientObj->id);
+            $product->ingredients()->syncWithoutDetaching($ingredient_id);
         }
     }
 }

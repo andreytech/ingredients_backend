@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Nova\Filters\HaveIngredients;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\ID;
@@ -130,7 +131,8 @@ class Product extends Resource
      */
     public function filters(NovaRequest $request)
     {
-        return [];
+        return [new HaveIngredients];
+        // return [];
     }
 
     /**

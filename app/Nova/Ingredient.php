@@ -3,8 +3,10 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Ingredient extends Resource
@@ -29,7 +31,7 @@ class Ingredient extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'id', 'name',
     ];
 
     /**
@@ -43,6 +45,13 @@ class Ingredient extends Resource
         return [
             ID::make()->sortable(),
             Text::make('Name')->sortable(),
+            Text::make('COSING Ref. No.', 'cosing_ref_no')->hideFromIndex(),
+            Text::make('CAS No.', 'cas_no')->hideFromIndex(),
+            Text::make('EC No.', 'ec_no')->hideFromIndex(),
+            Text::make('Function', 'function'),
+            Textarea::make('Описание', 'description')
+                ->hideFromIndex(),
+            BelongsToMany::make('Товары', 'products', Product::class),
         ];
     }
 

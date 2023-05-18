@@ -28,16 +28,17 @@ docker run --rm \
 alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'
 alias app-restart='sail down && sail up -d'
 alias app-docker-remove-all='sail down --rmi all -v'
-alias app-migrate-fresh='sail php artisan migrate:fresh'
+alias migrate-fresh='sail php artisan migrate:fresh --seed'
+```
+5. Запустить миграции:
+```
+app-migrate-fresh
 ```
 
 Рабочий процесс:
 ```
 # запустить
 sail up -d
-
-# миграции и сиды тестовых данных
-sail artisan migrate:fresh --seed
 
 # остановить
 sail down
@@ -52,7 +53,12 @@ password
 
 Команды:
 ```
-sail composer ....
-sail tinker ...
-sail artisan ...
+Чистая база с 0:
+app-migrate-fresh
+Парсинг товаров и ингредиентов из csv:
+sail artisan app:parse-all
+
+Доступ в консоль приложения
+docker exec -it ingredients_backend-laravel.test-1 bash
+
 ```
