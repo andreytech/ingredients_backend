@@ -3,8 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\Ingredient;
-use App\Models\IngredientSynonyms;
+use App\Models\IngredientSynonym;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class ParseCOSING extends Command
 {
@@ -22,13 +23,48 @@ class ParseCOSING extends Command
      */
     protected $description = 'Command description';
 
+    private $translations = [];
+
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $this->parse(true);
-        $this->parse(false);
+        // $this->parse(true);
+        // $this->parse(false);
+
+        $file = storage_path("import/synonyms_translations.csv");
+    
+        if(($handle = fopen($file, "r")) === FALSE) {
+            $this->info('not found '.$file);
+            return;
+        }
+        
+        while (($data = fgetcsv($handle, null, ';')) !== FALSE) {
+            $data = array_map(function($item) {
+                return mb_strtolower(trim($item));
+            }, $data);
+
+            if($data[0] === $data[1]) {
+                continue;
+            }
+
+            $this->translations[$data[1]][] = $data[0];
+        }
+
+        foreach($this->translations as $ruTranslation => $synonyms) {
+            $result = IngredientSynonym::select('ingredient_id')
+                ->whereIn('name', $synonyms)
+                ->groupBy('ingredient_id')
+                ->orderByRaw('COUNT(ingredient_id) DESC')
+                ->first();
+
+            $synonym = new IngredientSynonym();
+            $synonym->name = $ruTranslation;
+            $synonym->ingredient_id = $result->ingredient_id;
+            $synonym->language = IngredientSynonym::language_ru;
+            $synonym->save();
+        }
     }
 
     public function parse($excludeCI)
@@ -48,7 +84,7 @@ class ParseCOSING extends Command
             // var_dump($data);exit;
 
             $data = array_map(function($item) {
-                return strtolower(trim($item));
+                return mb_strtolower(trim($item));
             }, $data);
 
             if(empty($data[1])) {
@@ -57,7 +93,7 @@ class ParseCOSING extends Command
 
             $ingredientName = $data[1];
             $inn_name = $data[2];
-            $inn_name = trim(substr($inn_name, 0, strpos($inn_name, "[")));
+            $inn_name = trim(strtok($inn_name, "["));
             $eur_name = $data[3];
 
             if($this->wordsCount($ingredientName) > 10) {
@@ -93,20 +129,27 @@ class ParseCOSING extends Command
             }
 
             foreach($synonyms as $key => $synonymName) {
-                $synonym = IngredientSynonyms::where('name', $synonymName)->first();
+                
+            }
+
+            foreach($synonyms as $key => $synonymName) {
+                $synonym = IngredientSynonym::where('name', $synonymName)->first();
                 if($synonym) {
                     $this->info('skipped ingredient - '.$ingredientName);
                     unset($synonyms[$key]);
                     $ingredient = Ingredient::find($synonym->ingredient_id);
+                    break;
                 }
             }
+
+
 
             $ingredient->save();
 
             foreach($synonyms as $synonymName) {
                 $ingredient->ingredient_synonyms()->create([
                     'name' => $synonymName,
-                    'language' => IngredientSynonyms::language_en,
+                    'language' => IngredientSynonym::language_en,
                 ]);
             }
         }

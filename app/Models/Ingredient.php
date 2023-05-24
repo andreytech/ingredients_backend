@@ -20,6 +20,6 @@ class Ingredient extends Model
 
     public function ingredient_synonyms(): HasMany
     {
-        return $this->hasMany(IngredientSynonyms::class);
+        return $this->hasMany(IngredientSynonym::class);
     }
 }

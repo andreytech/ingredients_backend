@@ -2,22 +2,25 @@
 
 namespace App\Nova;
 
+use App\Nova\Filters\HaveIngredients;
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\BelongsToMany;
-use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Fields\Status;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Ingredient extends Resource
+class IngredientSynonym extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\Ingredient>
+     * @var class-string<\App\Models\IngredientSynonym>
      */
-    public static $model = \App\Models\Ingredient::class;
+    public static $model = \App\Models\IngredientSynonym::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -32,19 +35,19 @@ class Ingredient extends Resource
      * @var array
      */
     public static $search = [
-        'id', 'name',
+        'id', 'name'
     ];
 
     public static $perPageViaRelationship = 100;
 
     public static function label(): string
     {
-        return 'Ингредиенты';
+        return 'Синонимы ингредиентов';
     }
 
     public static function singularLabel(): string
     {
-        return 'Ингредиент';
+        return 'Синоним ингредиента';
     }
 
     /**
@@ -57,6 +60,7 @@ class Ingredient extends Resource
     {
         return [
             ID::make()->sortable(),
+            
             Text::make('Название', 'name')
                 ->rules('required')
                 ->hideFromIndex(),
@@ -67,16 +71,14 @@ class Ingredient extends Resource
                     if (strlen($text) > $charsToShow) {
                         return mb_substr($text, 0, $charsToShow) . '...';
                     }
-                })->onlyOnIndex()
-                ->sortable(),
+                })->onlyOnIndex(),
 
-            Text::make('COSING Ref. No.', 'cosing_ref_no')->hideFromIndex(),
-            Text::make('CAS No.', 'cas_no')->hideFromIndex(),
-            Text::make('EC No.', 'ec_no')->hideFromIndex(),
-            Text::make('Function', 'function'),
-            Textarea::make('Описание', 'description')->hideFromIndex(),
-            HasMany::make('Синонимы', 'ingredient_synonyms', IngredientSynonym::class),
-            BelongsToMany::make('Товары', 'products', Product::class),
+            Select::make('Язык', 'language')
+                ->options(\App\Models\IngredientSynonym::languages)
+                ->displayUsingLabels()
+                ->filterable(),
+
+            BelongsTo::make('Ингредиент', 'ingredient', Ingredient::class),
         ];
     }
 
@@ -99,7 +101,8 @@ class Ingredient extends Resource
      */
     public function filters(NovaRequest $request)
     {
-        return [];
+        return [new HaveIngredients];
+        // return [];
     }
 
     /**
@@ -110,9 +113,7 @@ class Ingredient extends Resource
      */
     public function lenses(NovaRequest $request)
     {
-        return [
-            new Lenses\IngredientProductsCount(),
-        ];
+        return [];
     }
 
     /**

@@ -28,6 +28,8 @@ class Product extends Resource
      */
     public static $title = 'id';
 
+    public static $tableStyle = 'tight';
+
     /**
      * The columns that should be searched.
      *
@@ -36,6 +38,8 @@ class Product extends Resource
     public static $search = [
         'id', 'name', 'brand', 'description', 'properties'
     ];
+
+    public static $perPageViaRelationship = 100;
 
     public static function label(): string
     {

@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Ingredient;
-use App\Models\IngredientSynonyms;
+use App\Models\IngredientSynonym;
 use App\Models\Product;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -31,13 +31,22 @@ class ParseAll extends Command
      */
     public function handle()
     {
-        // DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        // Product::truncate();
-        // DB::table('ingredient_product')->truncate();
-        // DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Product::truncate();
+        DB::table('ingredient_product')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        $this->ingredients = IngredientSynonyms::select('ingredient_id', 'name')->orderByRaw('CHAR_LENGTH(name) DESC')->pluck('name', 'ingredient_id')->toArray();
+        $this->ingredients = IngredientSynonym::select('ingredient_id', 'name')->orderByRaw('CHAR_LENGTH(name) DESC')->pluck('ingredient_id', 'name')->toArray();
+        // $text = '';
+        // foreach($this->ingredients as $item => $id) {
+        //     $text .= "$id - $item\n";
+        // }
+        // file_put_contents('test.txt', $text);
         // var_dump($this->ingredients);exit;
+
+        // $product = Product::find(8112);
+        // $this->handleIngredients($product->properties, $product);
+        // exit;
 
         $filesToCategory = [
             'ozon' => [
@@ -149,8 +158,8 @@ class ParseAll extends Command
 
             $this->handleIngredients($ingredients, $product);
 
-            if($description && substr_count($description, ',') > 20) {
-                // $this->handleIngredients($description, $product);
+            if($description && substr_count($description, ',') > 10) {
+                $this->handleIngredients($description, $product);
             }
         }
         fclose($handle);
@@ -164,11 +173,11 @@ class ParseAll extends Command
         if(!$str) {
             return;
         }
-        $str = strip_tags(strtolower($str));
+        $str = strip_tags(mb_strtolower($str));
         $str = str_replace('&nbsp;', ' ', $str);
         $str = str_replace('*', '', $str);
-        $str = preg_replace('/[а-яё]/iu', '', $str);
-        $delimiters = ['.', ';', ':', '(', ')', '!', '?', ];
+        // $str = preg_replace('/[а-яё]/iu', '', $str);
+        $delimiters = ['.', ';', ':', '(', ')', '!', '?', '/'];
         $str = str_replace($delimiters, ',', $str);
 
         $ingredients = explode(',', $str);
@@ -185,15 +194,16 @@ class ParseAll extends Command
             if(strlen($ingredient) < 3) {
                 continue;
             }
-            if(!preg_match("/[a-z]/iu", $ingredient)) {
+            // No English letters
+            // if(!preg_match("/[a-z]/iu", $ingredient)) {
+            //     continue;
+            // }
+            // var_dump($ingredient);
+            if(!isset($this->ingredients[$ingredient])) {
                 continue;
             }
-            
-            $ingredient_id = array_search($ingredient, $this->ingredients);
-            if($ingredient_id === false) {
-                continue;
-            }
-
+            $ingredient_id = $this->ingredients[$ingredient];
+            // var_dump($ingredient_id);
             // if(strlen(preg_replace('/[^a-z]/iu', '', $ingredient)) < 4) {
             //     continue;
             // }
