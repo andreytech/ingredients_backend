@@ -34,6 +34,11 @@ alias migrate-fresh='sail php artisan migrate:fresh --seed'
 ```
 app-migrate-fresh
 ```
+6. 
+```
+unzip storage/import/ozon/ozon.zip
+```
+
 
 Рабочий процесс:
 ```
@@ -55,10 +60,12 @@ password
 ```
 Чистая база с 0:
 app-migrate-fresh
-Парсинг товаров и ингредиентов из csv:
+Импорт ингредиентов:
+sail artisan app:parse-cosing
+Импорт товаров:
 sail artisan app:parse-all
 
-Доступ в консоль приложения
-docker exec -it ingredients_backend-laravel.test-1 bash
+Консоль приложения
+sail shell
 
 ```

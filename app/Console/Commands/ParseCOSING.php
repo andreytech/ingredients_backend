@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\Ingredient;
 use App\Models\IngredientSynonym;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 
 class ParseCOSING extends Command
 {
@@ -101,11 +100,11 @@ class ParseCOSING extends Command
             }
 
             if($excludeCI) {
-                if(strpos($ingredientName, 'CI ') === 0) {
+                if(strpos($ingredientName, 'ci ') === 0) {
                     continue;
                 }
             }else {
-                if(strpos($ingredientName, 'CI ') !== 0) {
+                if(strpos($ingredientName, 'ci ') !== 0) {
                     continue;
                 }
             }
@@ -119,18 +118,22 @@ class ParseCOSING extends Command
             $ingredient->function = $data[8];
 
             $synonyms = [$ingredientName];
-            if($inn_name && !in_array($inn_name, $synonyms)) {
+            
+            if($inn_name) {
                 $synonyms[] = $inn_name;
             }
+
             if($eur_name) {
-                $synonyms = array_unique(array_merge($synonyms, array_map(function($item) {
+                $synonyms = array_merge($synonyms, array_map(function($item) {
                     return trim($item);
-                }, explode('/', $eur_name))));
+                }, explode('/', $eur_name)));
             }
 
-            foreach($synonyms as $key => $synonymName) {
-                
+            if(strpos($ingredientName, 'ci ') !== 0) {
+                $synonyms[] = str_replace(' ', '', $ingredientName);
             }
+
+            $synonyms = array_unique($synonyms);
 
             foreach($synonyms as $key => $synonymName) {
                 $synonym = IngredientSynonym::where('name', $synonymName)->first();
@@ -141,8 +144,6 @@ class ParseCOSING extends Command
                     break;
                 }
             }
-
-
 
             $ingredient->save();
 

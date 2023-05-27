@@ -40,6 +40,8 @@ class IngredientSynonym extends Resource
 
     public static $perPageViaRelationship = 100;
 
+    public static $tableStyle = 'tight';
+
     public static function label(): string
     {
         return 'Синонимы ингредиентов';
