@@ -32,7 +32,7 @@ alias migrate-fresh='sail php artisan migrate:fresh --seed'
 ```
 5. Запустить миграции:
 ```
-app-migrate-fresh
+migrate-fresh
 ```
 6. 
 ```
@@ -59,7 +59,7 @@ password
 Команды:
 ```
 Чистая база с 0:
-app-migrate-fresh
+migrate-fresh
 Импорт ингредиентов:
 sail artisan app:parse-cosing
 Импорт товаров:
