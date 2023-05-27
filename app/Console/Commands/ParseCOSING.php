@@ -129,7 +129,7 @@ class ParseCOSING extends Command
                 }, explode('/', $eur_name)));
             }
 
-            if(strpos($ingredientName, 'ci ') !== 0) {
+            if(strpos($ingredientName, 'ci ') !== false) {
                 $synonyms[] = str_replace(' ', '', $ingredientName);
             }
 
