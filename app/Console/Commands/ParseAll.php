@@ -55,16 +55,6 @@ class ParseAll extends Command
                 unset($this->ingredients[$name]);
             }
         }
-        // $text = '';
-        // foreach($this->ingredients as $item => $id) {
-        //     $text .= "$id - $item\n";
-        // }
-        // file_put_contents('test.txt', $text);
-        // var_dump($this->ingredients);exit;
-
-        // $product = Product::find(8112);
-        // $this->handleIngredients($product->properties, $product);
-        // exit;
 
         $this->handleCategory('ozon', null, 'ozon_main_1.csv', function ($data) {
             $fields['images'] = [];
@@ -72,10 +62,10 @@ class ParseAll extends Command
             $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 34, 36));
             $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 38, 39));
             $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 41, 45));
-            $fields['description'] = $data[7];
-            $fields['link'] = $data[0];
-            $fields['name'] = $data[5];
-            $fields['brand'] = $data[3];
+            $fields['description'] = empty($data[7]) ? '' : $data[7];
+            $fields['link'] = empty($data[0]) ? '' : $data[0];
+            $fields['name'] = empty($data[5]) ? '' : $data[5];
+            $fields['brand'] = empty($data[3]) ? '' : $data[3];
             $fields['ingredients'] = empty($data[8]) ? '' : $data[8];
 
             return $fields;
@@ -88,10 +78,10 @@ class ParseAll extends Command
             $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 46, 46));
             $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 48, 48));
             $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 59, 63));
-            $fields['description'] = $data[7];
-            $fields['link'] = $data[0];
-            $fields['name'] = $data[5];
-            $fields['brand'] = $data[3];
+            $fields['description'] = empty($data[7]) ? '' : $data[7];
+            $fields['link'] = empty($data[0]) ? '' : $data[0];
+            $fields['name'] = empty($data[5]) ? '' : $data[5];
+            $fields['brand'] = empty($data[3]) ? '' : $data[3];
             $fields['ingredients'] = empty($data[8]) ? '' : $data[8];
 
             return $fields;
@@ -103,10 +93,10 @@ class ParseAll extends Command
             $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 22, 23));
             $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 27, 28));
             $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 31, 39));
-            $fields['description'] = $data[7];
-            $fields['link'] = $data[0];
-            $fields['name'] = $data[5];
-            $fields['brand'] = $data[3];
+            $fields['description'] = empty($data[7]) ? '' : $data[7];
+            $fields['link'] = empty($data[0]) ? '' : $data[0];
+            $fields['name'] = empty($data[5]) ? '' : $data[5];
+            $fields['brand'] = empty($data[3]) ? '' : $data[3];
             $fields['ingredients'] = empty($data[8]) ? '' : $data[8];
 
             return $fields;
@@ -216,6 +206,10 @@ class ParseAll extends Command
         $description = strip_tags($description);
         $description = str_replace('Показать полностью', '', $description);
 
+        if(!$link || !$name) {
+            return;
+        }
+        
         $product = DB::table('products')
             ->select(DB::raw('id'))
             ->where('link', $link)
