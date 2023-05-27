@@ -29,8 +29,8 @@ class ParseCOSING extends Command
      */
     public function handle()
     {
-        // $this->parse(true);
-        // $this->parse(false);
+        $this->parse(true);
+        $this->parse(false);
 
         $file = storage_path("import/synonyms_translations.csv");
     
