@@ -141,7 +141,6 @@ class ParseCOSING extends Command
                     $this->info('skipped ingredient - '.$ingredientName);
                     unset($synonyms[$key]);
                     $ingredient = Ingredient::find($synonym->ingredient_id);
-                    break;
                 }
             }
 
