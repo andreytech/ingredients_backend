@@ -144,6 +144,10 @@ class ParseCOSING extends Command
                 }
             }
 
+            if(!$synonyms) {
+                continue;
+            }
+
             $ingredient->save();
 
             foreach($synonyms as $synonymName) {
