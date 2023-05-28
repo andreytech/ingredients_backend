@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('name');
             $table->tinyText('brand');
             $table->unsignedTinyInteger('category')->index();
-            $table->text('link')->unique();
+            $table->text('link')->index();
             $table->text('description');
             $table->text('images');
             $table->text('properties')->nullable();

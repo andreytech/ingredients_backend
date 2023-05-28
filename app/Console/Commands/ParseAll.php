@@ -37,6 +37,8 @@ class ParseAll extends Command
         'Средства для проблемной кожи' => 17,
     ];
 
+    private $skipItems = true;
+
     /**
      * Execute the console command.
      */
@@ -206,14 +208,18 @@ class ParseAll extends Command
             return;
         }
         
-        $product = DB::table('products')
-            ->select(DB::raw('id'))
-            ->where('link', $link)
-            ->first();
+        if($link === 'https://www.ozon.ru/product/774501180/?oos_search=false') {
+            $this->skipItems = false;
+        }
 
-        if ($product) {
+        if($this->skipItems) {
             return;
         }
+        // $product = DB::select('SELECT id FROM products WHERE `link` = ?', [$link]);
+
+        // if ($product) {
+        //     return;
+        // }
 
         // Remove non-utf-8 chars
         $data = array_map(function ($item) {
