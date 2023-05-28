@@ -37,17 +37,15 @@ class ParseAll extends Command
         'Средства для проблемной кожи' => 17,
     ];
 
-    private $skipItems = true;
-
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        // DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        // Product::truncate();
-        // DB::table('ingredient_product')->truncate();
-        // DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Product::truncate();
+        DB::table('ingredient_product')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $this->ingredients = IngredientSynonym::select('ingredient_id', 'name')->orderByRaw('CHAR_LENGTH(name) DESC')->pluck('ingredient_id', 'name')->toArray();
 
@@ -58,20 +56,20 @@ class ParseAll extends Command
             }
         }
 
-        // $this->handleCategory('ozon', null, 'ozon_main_1.csv', function ($data) {
-        //     $fields['images'] = [];
-        //     $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 9, 14));
-        //     $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 34, 36));
-        //     $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 38, 39));
-        //     $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 41, 45));
-        //     $fields['description'] = empty($data[7]) ? '' : $data[7];
-        //     $fields['link'] = empty($data[0]) ? '' : $data[0];
-        //     $fields['name'] = empty($data[5]) ? '' : $data[5];
-        //     $fields['brand'] = empty($data[3]) ? '' : $data[3];
-        //     $fields['ingredients'] = empty($data[8]) ? '' : $data[8];
+        $this->handleCategory('ozon', null, 'ozon_main_1.csv', function ($data) {
+            $fields['images'] = [];
+            $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 9, 14));
+            $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 34, 36));
+            $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 38, 39));
+            $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 41, 45));
+            $fields['description'] = empty($data[7]) ? '' : $data[7];
+            $fields['link'] = empty($data[0]) ? '' : $data[0];
+            $fields['name'] = empty($data[5]) ? '' : $data[5];
+            $fields['brand'] = empty($data[3]) ? '' : $data[3];
+            $fields['ingredients'] = empty($data[8]) ? '' : $data[8];
 
-        //     return $fields;
-        // });
+            return $fields;
+        });
 
         $this->handleCategory('ozon', null, 'ozon_main_2.csv', function ($data) {
             $fields['images'] = [];
@@ -208,13 +206,6 @@ class ParseAll extends Command
             return;
         }
         
-        if($link === 'https://www.ozon.ru/product/774501180/?oos_search=false') {
-            $this->skipItems = false;
-        }
-
-        if($this->skipItems) {
-            return;
-        }
         // $product = DB::select('SELECT id FROM products WHERE `link` = ?', [$link]);
 
         // if ($product) {
