@@ -42,10 +42,10 @@ class ParseAll extends Command
      */
     public function handle()
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        Product::truncate();
-        DB::table('ingredient_product')->truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        // DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        // Product::truncate();
+        // DB::table('ingredient_product')->truncate();
+        // DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         $this->ingredients = IngredientSynonym::select('ingredient_id', 'name')->orderByRaw('CHAR_LENGTH(name) DESC')->pluck('ingredient_id', 'name')->toArray();
 
@@ -56,20 +56,20 @@ class ParseAll extends Command
             }
         }
 
-        $this->handleCategory('ozon', null, 'ozon_main_1.csv', function ($data) {
-            $fields['images'] = [];
-            $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 9, 14));
-            $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 34, 36));
-            $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 38, 39));
-            $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 41, 45));
-            $fields['description'] = empty($data[7]) ? '' : $data[7];
-            $fields['link'] = empty($data[0]) ? '' : $data[0];
-            $fields['name'] = empty($data[5]) ? '' : $data[5];
-            $fields['brand'] = empty($data[3]) ? '' : $data[3];
-            $fields['ingredients'] = empty($data[8]) ? '' : $data[8];
+        // $this->handleCategory('ozon', null, 'ozon_main_1.csv', function ($data) {
+        //     $fields['images'] = [];
+        //     $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 9, 14));
+        //     $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 34, 36));
+        //     $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 38, 39));
+        //     $fields['images'] = array_merge($fields['images'], $this->handleImages($data, 41, 45));
+        //     $fields['description'] = empty($data[7]) ? '' : $data[7];
+        //     $fields['link'] = empty($data[0]) ? '' : $data[0];
+        //     $fields['name'] = empty($data[5]) ? '' : $data[5];
+        //     $fields['brand'] = empty($data[3]) ? '' : $data[3];
+        //     $fields['ingredients'] = empty($data[8]) ? '' : $data[8];
 
-            return $fields;
-        });
+        //     return $fields;
+        // });
 
         $this->handleCategory('ozon', null, 'ozon_main_2.csv', function ($data) {
             $fields['images'] = [];
@@ -170,11 +170,6 @@ class ParseAll extends Command
             // var_dump($data);
             // exit;
 
-            // Remove non-utf-8 chars
-            $data = array_map(function ($item) {
-                return preg_replace('/[\x00-\x1F\x7F\xA0]/u', '', $item);
-            }, $data);
-
             $data = array_map(function ($item) {
                 return trim($item);
             }, $data);
@@ -190,6 +185,10 @@ class ParseAll extends Command
             }
 
             $count++;
+
+            if($count % 1000 === 0) {
+                $this->info($count);
+            }
         }
         fclose($handle);
 
@@ -203,9 +202,6 @@ class ParseAll extends Command
 
         extract($handleFields($data, $category));
 
-        $description = strip_tags($description);
-        $description = str_replace('Показать полностью', '', $description);
-
         if(!$link || !$name) {
             return;
         }
@@ -218,6 +214,14 @@ class ParseAll extends Command
         if ($product) {
             return;
         }
+
+        // Remove non-utf-8 chars
+        $data = array_map(function ($item) {
+            return preg_replace('/[\x00-\x1F\x7F\xA0]/u', '', $item);
+        }, $data);
+        
+        $description = strip_tags($description);
+        $description = str_replace('Показать полностью', '', $description);
 
         $product = new Product();
         $product->name = $name;
